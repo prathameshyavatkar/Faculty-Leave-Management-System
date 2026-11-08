@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block page_title %}Calendar{% endblock %}
+{% block content %}
+<h2>Semester Calendar</h2>
+<p class="muted">Days highlighted below have one or more lectures scheduled.</p>
+
+<div class="card">
+    <form method="GET" style="display:flex; gap:16px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:160px;">
+            <label>Month</label>
+            <select name="month" onchange="this.form.submit()">
+                {% for opt in month_options %}
+                <option value="{{ opt.value }}" {{ "selected" if opt.value == selected_month }}>{{ opt.label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="flex:1; min-width:160px;">
+            <label>Faculty</label>
+            <select name="faculty" onchange="this.form.submit()">
+                <option value="all" {{ "selected" if selected_faculty == "all" }}>All Teachers</option>
+                {% for f in all_faculty %}
+                <option value="{{ f.id }}" {{ "selected" if selected_faculty == f.id|string }}>{{ f.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <h3>{{ month_label }}</h3>
+    <table class="cal-table">
+        <tr>
+            <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th>
+        </tr>
+        {% for week in weeks %}
+        <tr>
+            {% for day in week %}
+                {% if day is none %}
+                <td class="cal-empty"></td>
+                {% elif day.classes %}
+                <td class="cal-day cal-highlight">
+                    <div class="cal-num">{{ day.day }}</div>
+                    {% for c in day.classes %}
+                    <div class="cal-class">{{ c.time_slot.split(' - ')[0] }} {{ c.subject }}{% if selected_faculty == "all" %} — {{ c.faculty_name }}{% endif %}</div>
+                    {% endfor %}
+                </td>
+                {% else %}
+                <td class="cal-day">
+                    <div class="cal-num">{{ day.day }}</div>
+                </td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+<h2>Welcome, {{ session.get('faculty_name') }}</h2>
+
+<div class="stat-row">
+    <div class="stat-card"><div class="stat-num">{{ stats.total }}</div><div>Leave Balance</div></div>
+    <div class="stat-card"><div class="stat-num">{{ stats.pending }}</div><div>Pending</div></div>
+    <div class="stat-card"><div class="stat-num">{{ stats.approved }}</div><div>Approved</div></div>
+    <div class="stat-card"><div class="stat-num">{{ stats.rejected }}</div><div>Rejected</div></div>
+</div>
+
+{% if substitute_requests %}
+<div class="card result-conflict">
+    <h3>🔔 Substitute Requests Awaiting Your Response</h3>
+    <table>
+        <tr><th>Cover For</th><th>Day</th><th>Time</th><th>Subject</th><th>Class</th><th>Action</th></tr>
+        {% for sr in substitute_requests %}
+        <tr>
+            <td>{{ sr.original_faculty_name }}</td>
+            <td>{{ sr.day }}</td>
+            <td>{{ sr.time_slot }}</td>
+            <td>{{ sr.subject }}</td>
+            <td>{{ sr.class_name }}</td>
+            <td>
+                <a href="{{ url_for('respond_substitute_request', sub_id=sr.id, action='accept') }}" class="approve">Accept</a>
+                | <a href="{{ url_for('respond_substitute_request', sub_id=sr.id, action='deny') }}" class="reject">Deny</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+
+<div class="card">
+    <h3>Today's Classes (Monday)</h3>
+    {% if classes %}
+    <table>
+        <tr><th>Time</th><th>Subject</th><th>Class</th></tr>
+        {% for c in classes %}
+        <tr><td>{{ c.time_slot }}</td><td>{{ c.subject }}</td><td>{{ c.class_name }}</td></tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p class="muted">No classes scheduled today.</p>
+    {% endif %}
+</div>
+
+<a href="{{ url_for('apply_leave') }}" class="btn btn-primary">+ Apply for Leave</a>
+{% endblock %}

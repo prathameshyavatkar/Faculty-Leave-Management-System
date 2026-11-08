@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block page_title %}Leave Requests{% endblock %}
+{% block content %}
+<h2>Leave Requests</h2>
+<div class="card">
+    <table>
+        <tr><th>Faculty</th><th>Dates</th><th>Duration</th><th>Conflict</th><th>Status</th><th>Actions</th></tr>
+        {% for r in requests %}
+        <tr>
+            <td>{{ r.faculty_name }}</td>
+            <td>{{ r.from_date }} - {{ r.to_date }}</td>
+            <td>{{ r.duration }} Days</td>
+            <td>{{ "⚠️ Yes" if r.conflict == "Yes" else "✅ No" }}</td>
+            <td><span class="badge badge-{{ r.status|lower }}">{{ r.status }}</span></td>
+            <td>
+                <a href="{{ url_for('request_details', req_id=r.id) }}">Details</a>
+                {% if r.status == 'Pending' %}
+                | <a href="{{ url_for('update_request', req_id=r.id, action='approve') }}" class="approve">Approve</a>
+                | <a href="{{ url_for('update_request', req_id=r.id, action='reject') }}" class="reject">Reject</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="muted">No requests yet.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

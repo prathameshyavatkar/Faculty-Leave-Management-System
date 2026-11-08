@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block page_title %}My Timetable{% endblock %}
+{% block content %}
+<h2>My Timetable</h2>
+<div class="card">
+    <table>
+        <tr><th>Day</th><th>Time</th><th>Subject</th><th>Class</th></tr>
+        {% for s in slots %}
+        <tr><td>{{ s.day }}</td><td>{{ s.time_slot }}</td><td>{{ s.subject }}</td><td>{{ s.class_name }}</td></tr>
+        {% else %}
+        <tr><td colspan="4" class="muted">No timetable entries.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

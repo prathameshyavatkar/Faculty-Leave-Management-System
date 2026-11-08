@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+
+<div class="stat-row">
+    <div class="stat-card"><div class="stat-num">{{ stats.total_faculty }}</div><div>Total Faculty</div></div>
+    <div class="stat-card"><div class="stat-num">{{ stats.pending }}</div><div>Pending Leaves</div></div>
+    <div class="stat-card"><div class="stat-num">{{ stats.approved }}</div><div>Approved Leaves</div></div>
+    <div class="stat-card"><div class="stat-num">{{ stats.conflicts }}</div><div>Conflicts</div></div>
+</div>
+
+<div class="card">
+    <h3>Recent Leave Requests</h3>
+    <table>
+        <tr><th>Faculty</th><th>From</th><th>To</th><th>Status</th><th></th></tr>
+        {% for r in recent %}
+        <tr>
+            <td>{{ r.faculty_name }}</td>
+            <td>{{ r.from_date }}</td>
+            <td>{{ r.to_date }}</td>
+            <td><span class="badge badge-{{ r.status|lower }}">{{ r.status }}</span></td>
+            <td><a href="{{ url_for('request_details', req_id=r.id) }}">View</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="muted">No requests yet.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

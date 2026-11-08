@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block page_title %}Request Details{% endblock %}
+{% block content %}
+<h2>Request Details</h2>
+
+<div class="card">
+    <p><b>Faculty:</b> {{ req.faculty_name }}</p>
+    <p><b>Dates:</b> {{ req.from_date }} to {{ req.to_date }} ({{ req.duration }} Days)</p>
+    <p><b>Reason:</b> {{ req.reason }}</p>
+    <p><b>Status:</b> <span class="badge badge-{{ req.status|lower }}">{{ req.status }}</span></p>
+</div>
+
+<div class="card">
+    <h3>AI Constraint Analysis (CSP)</h3>
+    <table>
+        <tr><th>Constraint</th><th>Result</th></tr>
+        {% for name, ok in analysis.constraints %}
+        <tr><td>{{ name }}</td><td>{{ "✅ Valid" if ok else "❌ Violated" }}</td></tr>
+        {% endfor %}
+    </table>
+
+    {% if analysis.classes_affected %}
+    <h4>Classes Affected ({{ analysis.classes_affected|length }})</h4>
+    <table>
+        <tr><th>Day</th><th>Time</th><th>Subject</th><th>Class</th><th>Substitute Status</th></tr>
+        {% for cl in analysis.classes_affected %}
+        <tr>
+            <td>{{ cl.day }}</td>
+            <td>{{ cl.time_slot }}</td>
+            <td>{{ cl.subject }}</td>
+            <td>{{ cl.class_name }}</td>
+            <td>
+                {% set notified = notified_by_timetable_id.get(cl.id) %}
+                {% if notified %}
+                    {% if notified.status == 'Accepted' %}
+                        <span class="badge badge-approved">✅ Covered by {{ notified.substitute_name }}</span>
+                    {% elif notified.status == 'Denied' %}
+                        <span class="badge badge-rejected">⛔ Lecture Cancelled (declined)</span>
+                    {% else %}
+                        <span class="badge badge-pending">⏳ Waiting for response</span>
+                    {% endif %}
+                {% elif analysis.substitutes %}
+                    <a href="{{ url_for('notify_substitute', req_id=req.id, timetable_id=cl.id, substitute_id=analysis.substitutes[0].id) }}" class="btn btn-primary" style="margin:0; padding:6px 12px; font-size:12.5px;">Notify {{ analysis.substitutes[0].name }}</a>
+                {% else %}
+                    <span class="muted">No substitute available</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    {% if analysis.substitutes %}
+    <h4>Recommended Substitutes</h4>
+    <ul>
+        {% for s in analysis.substitutes %}
+        <li>{{ s.name }} ({{ s.match }} Match)</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+
+{% if req.status == 'Pending' %}
+<a href="{{ url_for('update_request', req_id=req.id, action='approve') }}" class="btn btn-primary">APPROVE</a>
+<a href="{{ url_for('update_request', req_id=req.id, action='reject') }}" class="btn btn-danger">REJECT</a>
+{% endif %}
+{% endblock %}

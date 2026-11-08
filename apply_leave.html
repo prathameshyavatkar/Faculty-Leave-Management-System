@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block page_title %}Apply for Leave{% endblock %}
+{% block content %}
+<h2>Apply for Leave</h2>
+
+{% if advance_error %}
+<div class="card result-conflict">
+    <h3>⛔ Advance Limit Exceeded</h3>
+    <p>{{ advance_error }}</p>
+</div>
+{% endif %}
+
+<div class="card">
+    <form method="POST">
+        <label>Leave Type</label>
+        <select name="leave_type">
+            <option>Casual Leave</option>
+            <option>Sick Leave</option>
+            <option>Personal Leave</option>
+        </select>
+
+        <label>From Date</label>
+        <input type="date" name="from_date" required min="{{ min_date }}" max="{{ max_date }}" value="{{ form_data.from_date if form_data else '' }}">
+
+        <label>To Date</label>
+        <input type="date" name="to_date" required min="{{ min_date }}" max="{{ max_date }}" value="{{ form_data.to_date if form_data else '' }}">
+
+        <label>Reason</label>
+        <textarea name="reason" rows="2">{{ form_data.reason if form_data else '' }}</textarea>
+
+        <p class="muted" style="font-size:12.5px; margin-top:6px;">Leave can be applied up to 2 months in advance (until {{ max_date }}).</p>
+
+        <button type="submit" class="btn btn-primary">CHECK AVAILABILITY</button>
+    </form>
+</div>
+
+{% if result %}
+    {% if not result.conflict %}
+    <div class="card result-ok">
+        <h3>✅ No Conflict</h3>
+        <p>Your leave request satisfies all constraints.</p>
+        <p>Classes Affected: <b>{{ result.classes_affected|length }}</b> &nbsp; | &nbsp;
+           Duration: <b>{{ result.duration }} Days</b></p>
+        <form method="POST">
+            <input type="hidden" name="leave_type" value="{{ form_data.leave_type }}">
+            <input type="hidden" name="from_date" value="{{ form_data.from_date }}">
+            <input type="hidden" name="to_date" value="{{ form_data.to_date }}">
+            <input type="hidden" name="reason" value="{{ form_data.reason }}">
+            <input type="hidden" name="confirm" value="yes">
+            <button type="submit" class="btn btn-primary">SUBMIT LEAVE</button>
+        </form>
+    </div>
+    {% else %}
+    <div class="card result-conflict">
+        <h3>⚠️ Conflict Detected</h3>
+        <p>{{ result.classes_affected|length }} class(es) will be affected.</p>
+        <table>
+            <tr><th>Constraint</th><th>Status</th></tr>
+            {% for name, ok in result.constraints %}
+            <tr><td>{{ name }}</td><td>{{ "✅ Pass" if ok else "❌ Fail" }}</td></tr>
+            {% endfor %}
+        </table>
+        {% if result.substitutes %}
+        <p><b>Recommended Substitutes:</b></p>
+        <ul>
+        {% for s in result.substitutes %}
+            <li>{{ s.name }} ({{ s.match }} Match)</li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+        <form method="POST">
+            <input type="hidden" name="leave_type" value="{{ form_data.leave_type }}">
+            <input type="hidden" name="from_date" value="{{ form_data.from_date }}">
+            <input type="hidden" name="to_date" value="{{ form_data.to_date }}">
+            <input type="hidden" name="reason" value="{{ form_data.reason }}">
+            <input type="hidden" name="confirm" value="yes">
+            <button type="submit" class="btn btn-warning">SUBMIT ANYWAY</button>
+            <a href="{{ url_for('apply_leave') }}" class="btn btn-danger">CANCEL REQUEST</a>
+        </form>
+    </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

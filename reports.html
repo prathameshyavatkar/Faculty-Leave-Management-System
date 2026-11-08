@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block page_title %}Reports{% endblock %}
+{% block content %}
+<h2>Reports</h2>
+<div class="card">
+    <h3>Leave Requests per Month</h3>
+    <canvas id="reportChart" height="100"></canvas>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+    const ctx = document.getElementById('reportChart');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ labels|tojson }},
+            datasets: [{
+                label: 'Leave Requests',
+                data: {{ values|tojson }},
+                backgroundColor: '#4f7cff'
+            }]
+        },
+        options: { responsive: true }
+    });
+</script>
+{% endblock %}

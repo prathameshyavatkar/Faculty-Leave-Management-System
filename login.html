@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <span class="logo-dot big"></span>
+        </div>
+        <h2>Leave Management System</h2>
+        <p class="muted">Sign in to continue</p>
+
+        {% if error %}<div class="alert-error">{{ error }}</div>{% endif %}
+
+        <form method="POST">
+            <div class="role-toggle">
+                <label class="role-pill"><input type="radio" name="role" value="faculty" checked><span>Faculty</span></label>
+                <label class="role-pill"><input type="radio" name="role" value="admin"><span>Admin</span></label>
+            </div>
+
+            <label>Username</label>
+            <input type="text" name="username" required placeholder="Enter username">
+
+            <label>Password</label>
+            <input type="password" name="password" required placeholder="Enter password">
+
+            <button type="submit" class="btn btn-primary btn-block">Login</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

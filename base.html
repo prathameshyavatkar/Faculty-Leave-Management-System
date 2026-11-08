@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Leave Management System{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ asset_version }}">
+</head>
+<body class="{{ 'auth-body' if not session.get('role') else '' }}">
+
+{% if session.get('role') %}
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <span class="logo-dot"></span>
+            <span>Leave Management System</span>
+        </div>
+        <nav class="sidebar-nav">
+            {% if session.get('role') == 'faculty' %}
+                <a href="{{ url_for('faculty_dashboard') }}" class="{{ 'active' if request.endpoint == 'faculty_dashboard' }}">📊 Dashboard</a>
+                <a href="{{ url_for('apply_leave') }}" class="{{ 'active' if request.endpoint == 'apply_leave' }}">📝 Apply Leave</a>
+                <a href="{{ url_for('faculty_calendar') }}" class="{{ 'active' if request.endpoint == 'faculty_calendar' }}">📅 Calendar</a>
+                <a href="{{ url_for('my_leaves') }}" class="{{ 'active' if request.endpoint == 'my_leaves' }}">📋 My Leaves</a>
+                <a href="{{ url_for('faculty_timetable') }}" class="{{ 'active' if request.endpoint == 'faculty_timetable' }}">🗓️ Timetable</a>
+            {% else %}
+                <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if request.endpoint == 'admin_dashboard' }}">📊 Dashboard</a>
+                <a href="{{ url_for('leave_requests_page') }}" class="{{ 'active' if request.endpoint == 'leave_requests_page' }}">📋 Leave Requests</a>
+                <a href="{{ url_for('faculty_management') }}" class="{{ 'active' if request.endpoint == 'faculty_management' }}">👥 Faculty</a>
+                <a href="{{ url_for('admin_calendar') }}" class="{{ 'active' if request.endpoint == 'admin_calendar' }}">📅 Calendar</a>
+                <a href="{{ url_for('reports') }}" class="{{ 'active' if request.endpoint == 'reports' }}">📈 Reports</a>
+            {% endif %}
+        </nav>
+        <a href="{{ url_for('logout') }}" class="sidebar-logout">↩ Logout</a>
+    </aside>
+
+    <main class="main-panel">
+        <div class="topbar">
+            <div class="topbar-title">{% block page_title %}{% endblock %}</div>
+            <div class="topbar-user">
+                <span class="avatar">{{ (session.get('faculty_name') or 'Admin')[0] }}</span>
+                {{ session.get('faculty_name') or 'Admin' }}
+            </div>
+        </div>
+        <div class="container">
+{% endif %}
+
+{% block content %}{% endblock %}
+
+{% if session.get('role') %}
+        </div>
+    </main>
+</div>
+{% endif %}
+
+</body>
+</html>
